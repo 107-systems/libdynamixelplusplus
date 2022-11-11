@@ -3,7 +3,7 @@
 ====================================
 [![Spell Check status](https://github.com/107-systems/libdynamixelplusplus/actions/workflows/spell-check.yml/badge.svg)](https://github.com/107-systems/libdynamixelplusplus/actions/workflows/spell-check.yml)
 
-A convenient C++ wrapper for Robotis Dynamixel smart servo protocol.
+A comfortable modern C++17 wrapper for the Robotis [DynamixelSDK](https://github.com/ROBOTIS-GIT/DynamixelSDK) [v3.7.60](https://github.com/ROBOTIS-GIT/DynamixelSDK/releases/tag/3.7.60).
 
 ### How-to-build
 ```bash
