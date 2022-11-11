@@ -7,11 +7,11 @@ A comfortable modern C++17 wrapper for the Robotis [DynamixelSDK](https://github
 
 ### How-to-build
 ```bash
-# TODO
+git clone https://github.com/107-systems/libdynamixelplusplus && cd libdynamixelplusplus
+mkdir build && cd build
+cmake .. && make
 ```
-
-### How-to-ise
+or
 ```bash
-# TODO
+cmake -DBUILD_EXAMPLES=ON .. && make
 ```
-
