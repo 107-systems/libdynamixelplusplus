@@ -201,5 +201,5 @@ bool GroupSyncRead::getError(uint8_t id, uint8_t* error)
   // TODO : check protocol version, last_result_, data_list
   // if (ph_->getProtocolVersion() == 1.0 || last_result_ == false || error_list_.find(id) == error_list_.end())
 
-  return error[0] = error_list_[id][0];
+  return (error[0] = error_list_[id][0]);
 }
