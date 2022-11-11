@@ -24,7 +24,7 @@ namespace dynamixelplusplus
  **************************************************************************************/
 
 Dynamixel::Dynamixel(std::string const & device_name,
-                     ProtocolVersion const protocol_version,
+                     Protocol const protocol_version,
                      int const baudrate)
 : _port_handler{dynamixel::PortHandler::getPortHandler(device_name.c_str())}
 , _packet_handler{dynamixel::PacketHandler::getPacketHandler(static_cast<float>(protocol_version))}

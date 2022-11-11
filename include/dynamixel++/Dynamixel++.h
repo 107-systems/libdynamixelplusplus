@@ -35,14 +35,14 @@ class Dynamixel
 {
 public:
 
-  enum class ProtocolVersion : int
+  enum class Protocol : int
   {
     V1_0 = 1,
     V2_0 = 2,
   };
 
    Dynamixel(std::string const & device_name,
-             ProtocolVersion const protocol_version,
+             Protocol const protocol_version,
              int const baudrate);
   ~Dynamixel();
 
