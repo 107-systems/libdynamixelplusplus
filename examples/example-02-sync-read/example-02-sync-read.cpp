@@ -63,25 +63,23 @@ int main(int argc, char **argv)
   /* Read the current angle from all those servos
    * and print it to std::cout.
    */
-  auto [err_read, position_vect] = dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, 4, id_vect);
+  std::map<Dynamixel::Id, uint32_t> position_map;
+  auto err_read = dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
   if (err_read != Dynamixel::Error::None)
   {
     std::cerr << "'syncRead' failed with error code " << static_cast<int>(err_read) << std::endl;
     return EXIT_FAILURE;
   }
   
-  for (auto [id, position_raw] : position_vect)
+  for (auto [id, position_raw] : position_map)
   {
-    if (position_raw.has_value())
-    {
-      float const position_deg = static_cast<float>(position_raw.value()) * 360.0f / 4096;
-      std::cout << "Dynamixel MX28 servo #"
-                << static_cast<int>(id)
-                << ": "
-                << position_deg
-                << " DEG"
-                << std::endl;
-    }
+    float const position_deg = static_cast<float>(position_raw) * 360.0f / 4096;
+    std::cout << "Dynamixel MX28 servo #"
+              << static_cast<int>(id)
+              << ": "
+              << position_deg
+              << " DEG"
+              << std::endl;
   }
 
   return EXIT_SUCCESS;

@@ -56,19 +56,17 @@ public:
     BroadcastPing = -4,
   };
 
-  typedef uint8_t                                 Id;
-  typedef std::vector<Id>                         IdVect;
-  typedef std::tuple<Id, std::optional<uint32_t>> SyncReadData;
-  typedef std::vector<SyncReadData>               SyncReadDataVect;
+  typedef uint8_t         Id;
+  typedef std::vector<Id> IdVect;
 
 
   std::tuple<Error, IdVect> broadcastPing();
 
-  template<typename T> Error syncWrite(uint16_t const start_address, Id const id, T const val);
-  template<typename T> Error syncWrite(uint16_t const start_address, std::vector<std::tuple<Id, T>> const & data);
+  template<typename T> Error syncRead(uint16_t const start_address, Id const id, T & val);
+  template<typename T> Error syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
 
-  std::tuple<Error, SyncReadData>     syncRead(uint16_t const start_address, uint16_t const data_length, Id const id);
-  std::tuple<Error, SyncReadDataVect> syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
+  template<typename T> Error syncWrite(uint16_t const start_address, Id const id, T const val);
+  template<typename T> Error syncWrite(uint16_t const start_address, std::vector<std::tuple<Id, T>> const & val_id_vect);
 
 
 private:
@@ -78,6 +76,10 @@ private:
   typedef std::tuple<Id, uint8_t *>  SyncWriteData;
   typedef std::vector<SyncWriteData> SyncWriteDataVect;
   Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
+
+  typedef std::tuple<Id, std::optional<uint32_t>> SyncReadData;
+  typedef std::vector<SyncReadData>               SyncReadDataVect;
+  std::tuple<Error, SyncReadDataVect> syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 };
 
 /**************************************************************************************
