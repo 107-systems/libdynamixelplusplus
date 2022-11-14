@@ -17,6 +17,10 @@ namespace dynamixelplusplus
 
 template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_address, Id const id, T & val)
 {
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
   std::map<Id, T> val_map;
   auto err = syncRead(start_address, IdVect{id}, val_map);
 
@@ -28,6 +32,10 @@ template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_a
 
 template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map)
 {
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
   auto [err, sync_read_data_vect] = syncRead(start_address, sizeof(T), id_vect);
 
   for (auto [id, opt_data] : sync_read_data_vect)
@@ -41,6 +49,10 @@ template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_a
 
 template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, Id const id, T const val)
 {
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
   std::map<Id, T> val_map;
   val_map[id] = val;
   return syncWrite(start_address, val_map);
@@ -48,6 +60,10 @@ template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_
 
 template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
 {
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
   /* Convert the functions input data into the required
    * format to feed to the Dynamixel SDK.
    */
