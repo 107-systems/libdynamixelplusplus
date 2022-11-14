@@ -66,7 +66,7 @@ public:
   template<typename T> Error syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
 
   template<typename T> Error syncWrite(uint16_t const start_address, Id const id, T const val);
-  template<typename T> Error syncWrite(uint16_t const start_address, std::vector<std::tuple<Id, T>> const & val_id_vect);
+  template<typename T> Error syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
 
 
 private:

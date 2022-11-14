@@ -99,22 +99,20 @@ int main(int argc, char **argv)
 
 Dynamixel::Error turnLedOn(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  uint8_t const led_on = 1;
-  std::vector<std::tuple<Dynamixel::Id, uint8_t>> led_on_data_vect;
+  std::map<Dynamixel::Id, uint8_t> led_on_data_map;
 
   for (auto id : id_vect)
-    led_on_data_vect.push_back(std::make_tuple(id, led_on));
+    led_on_data_map[id] = 1;
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_on_data_vect);
+  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_on_data_map);
 }
 
 Dynamixel::Error turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  uint8_t const led_off = 0;
-  std::vector<std::tuple<Dynamixel::Id, uint8_t>> led_off_data_vect;
+  std::map<Dynamixel::Id, uint8_t> led_off_data_map;
 
   for (auto id : id_vect)
-    led_off_data_vect.push_back(std::make_tuple(id, led_off));
+    led_off_data_map[id] = 0;
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_off_data_vect);
+  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_off_data_map);
 }

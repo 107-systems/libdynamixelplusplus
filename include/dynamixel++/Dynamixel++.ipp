@@ -41,19 +41,19 @@ template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_a
 
 template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, Id const id, T const val)
 {
-  std::tuple<Id, T> const data = std::make_tuple(id, val);
-  std::vector<std::tuple<Id, T>> const val_id_vect{data};
-  return syncWrite(start_address, val_id_vect);
+  std::map<Id, T> val_map;
+  val_map[id] = val;
+  return syncWrite(start_address, val_map);
 }
 
-template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::vector<std::tuple<Id, T>> const & val_id_vect)
+template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
 {
   /* Convert the functions input data into the required
    * format to feed to the Dynamixel SDK.
    */
   std::vector<Id> id_vect;
   std::vector<T> value_vect;
-  for (auto [id, val] : val_id_vect)
+  for (auto [id, val] : val_map)
   {
     id_vect.push_back(id);
     value_vect.push_back(val);
