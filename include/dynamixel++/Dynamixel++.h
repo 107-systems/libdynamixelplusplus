@@ -58,25 +58,26 @@ public:
 
   typedef uint8_t                                 Id;
   typedef std::vector<Id>                         IdVect;
-  typedef std::tuple<Id, uint8_t *>               SyncWriteData;
-  typedef std::vector<SyncWriteData>              SyncWriteDataVect;
   typedef std::tuple<Id, std::optional<uint32_t>> SyncReadData;
   typedef std::vector<SyncReadData>               SyncReadDataVect;
 
 
   std::tuple<Error, IdVect> broadcastPing();
 
-  Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteData const & data);
-  Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
+  template<typename T> Error syncWrite(uint16_t const start_address, Id const id, T const val);
+  template<typename T> Error syncWrite(uint16_t const start_address, std::vector<std::tuple<Id, T>> const & data);
 
-  std::tuple<Error, SyncReadData>     syncRead(uint16_t const start_address, uint16_t const data_length, uint8_t const id);
+  std::tuple<Error, SyncReadData>     syncRead(uint16_t const start_address, uint16_t const data_length, Id const id);
   std::tuple<Error, SyncReadDataVect> syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 
 
 private:
-
   std::unique_ptr<dynamixel::PortHandler> _port_handler;
   std::unique_ptr<dynamixel::PacketHandler> _packet_handler;
+
+  typedef std::tuple<Id, uint8_t *>  SyncWriteData;
+  typedef std::vector<SyncWriteData> SyncWriteDataVect;
+  Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
 };
 
 /**************************************************************************************
@@ -90,5 +91,11 @@ typedef std::shared_ptr<Dynamixel> SharedDynamixel;
  **************************************************************************************/
 
 } /* dynamixelplusplus */
+
+/**************************************************************************************
+ * TEMPLATE IMPLEMENTATION
+ **************************************************************************************/
+
+#include "Dynamixel++.ipp"
 
 #endif /* DYNAMIXEL_H_ */

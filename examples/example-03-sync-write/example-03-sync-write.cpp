@@ -101,22 +101,22 @@ int main(int argc, char **argv)
 
 Dynamixel::Error turnLedOn(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  uint8_t led_on = 1;
-  Dynamixel::SyncWriteDataVect led_on_data;
+  uint8_t const led_on = 1;
+  std::vector<std::tuple<Dynamixel::Id, uint8_t>> led_on_data_vect;
 
   for (auto id : id_vect)
-    led_on_data.push_back(std::make_tuple(id, &led_on));
+    led_on_data_vect.push_back(std::make_tuple(id, led_on));
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, sizeof(led_on), led_on_data);
+  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_on_data_vect);
 }
 
 Dynamixel::Error turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  uint8_t led_off = 0;
-  Dynamixel::SyncWriteDataVect led_off_data;
+  uint8_t const led_off = 0;
+  std::vector<std::tuple<Dynamixel::Id, uint8_t>> led_off_data_vect;
 
   for (auto id : id_vect)
-    led_off_data.push_back(std::make_tuple(id, &led_off));
+    led_off_data_vect.push_back(std::make_tuple(id, led_off));
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, sizeof(led_off), led_off_data);
+  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_off_data_vect);
 }

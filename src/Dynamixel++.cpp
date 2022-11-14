@@ -56,31 +56,7 @@ std::tuple<Dynamixel::Error, Dynamixel::IdVect> Dynamixel::broadcastPing()
   return std::make_tuple(Error::None, servo_id_vect);
 }
 
-Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteData const & data)
-{
-  return syncWrite(start_address, data_length, std::vector<SyncWriteData>{data});
-}
-
-Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data)
-{
-  dynamixel::GroupSyncWrite group_sync_write(_port_handler.get(), _packet_handler.get(), start_address, data_length);
-
-  for(auto [id, data_ptr] : data)
-  {
-    if (!group_sync_write.addParam(id, data_ptr))
-      return Error::AddParam;
-  }
-
-  if (int res = group_sync_write.txPacket();
-      res != COMM_SUCCESS)
-    return Error::TxPacket;
-
-  group_sync_write.clearParam();
-
-  return Error::None;
-}
-
-std::tuple<Dynamixel::Error, Dynamixel::SyncReadData> Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, uint8_t const id)
+std::tuple<Dynamixel::Error, Dynamixel::SyncReadData> Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, Id const id)
 {
   auto [err, data] = syncRead(start_address, data_length, std::vector<uint8_t>{id});
   return std::make_tuple(err, data.at(0));
@@ -120,6 +96,29 @@ std::tuple<Dynamixel::Error, Dynamixel::SyncReadDataVect> Dynamixel::syncRead(ui
   group_sync_read.clearParam();
 
   return std::make_tuple(Error::None, data_vect);
+}
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
+
+Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data)
+{
+  dynamixel::GroupSyncWrite group_sync_write(_port_handler.get(), _packet_handler.get(), start_address, data_length);
+
+  for(auto [id, data_ptr] : data)
+  {
+    if (!group_sync_write.addParam(id, data_ptr))
+      return Error::AddParam;
+  }
+
+  if (int res = group_sync_write.txPacket();
+      res != COMM_SUCCESS)
+    return Error::TxPacket;
+
+  group_sync_write.clearParam();
+
+  return Error::None;
 }
 
 /**************************************************************************************
