@@ -11,7 +11,6 @@
 #include <cstdlib>
 
 #include <thread>
-#include <sstream>
 #include <iostream>
 
 #include <dynamixel++/Dynamixel++.h>
@@ -62,11 +61,10 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  std::stringstream id_list;
+  std::cout << "detected Dynamixel servos: ";
   for (auto id : id_vect)
-    id_list << static_cast<int>(id) << " ";
-
-  std::cout << "detected Dynamixel servos: { %s}" << id_list.str() << std::endl;
+    std::cout << static_cast<int>(id) << " ";
+  std::cout << std::endl;
 
   /* The following code turns the LEDs of all servos on,
    * keeps them turned on for a certain duration of time,
