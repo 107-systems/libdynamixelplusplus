@@ -49,6 +49,11 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+  if (id_vect.empty()) {
+    std::cerr << "No dynamixel servos detected." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   std::stringstream id_list;
   for (auto id : id_vect)
     id_list << static_cast<int>(id) << " ";

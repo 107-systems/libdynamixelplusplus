@@ -16,5 +16,6 @@ target_link_libraries(${PROJECT_NAME} dynamixel)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples/example-01-ping)
     add_subdirectory(examples/example-02-sync-read)
+    add_subdirectory(examples/example-03-sync-write)
 endif()
 ##########################################################################
