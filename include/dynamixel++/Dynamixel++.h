@@ -77,7 +77,11 @@ private:
   typedef std::vector<SyncWriteData> SyncWriteDataVect;
   Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
 
-  typedef std::vector<std::tuple<Id, std::optional<uint32_t>>> SyncReadDataVect;
+  typedef std::vector<std::tuple<
+                                 Id,
+                                 std::optional<uint32_t>
+                                >
+                     > SyncReadDataVect;
   std::tuple<Error, SyncReadDataVect> syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 };
 
