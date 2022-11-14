@@ -66,7 +66,7 @@ template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_
   SyncWriteDataVect data_vect;
   for (size_t i = 0; i < id_vect.size(); i++)
   {
-    SyncWriteData const d = std::make_tuple(id_vect[i], &value_vect[i]);
+    SyncWriteData const d = std::make_tuple(id_vect[i], reinterpret_cast<uint8_t *>(&value_vect[i]));
     data_vect.push_back(d);
   }
 
