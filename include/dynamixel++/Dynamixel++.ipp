@@ -27,9 +27,22 @@ template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_
   /* Convert the functions input data into the required
    * format to feed to the Dynamixel SDK.
    */
+  std::vector<Id> id_vect;
+  std::vector<T> value_vect;
+  for (auto [id, val] : data)
+  {
+    id_vect.push_back(id);
+    value_vect.push_back(val);
+  }
+
+  /* This 2-step dance is necessary because we need to pass a pointer
+   * to a local variable which still needs to exist in scope until
+   * syncWrite has been fully executed.
+   */
   SyncWriteDataVect data_vect;
-  for (auto [id, val] : data) {
-    SyncWriteData const d = std::make_tuple(id, &val);
+  for (size_t i = 0; i < id_vect.size(); i++)
+  {
+    SyncWriteData const d = std::make_tuple(id_vect[i], &value_vect[i]);
     data_vect.push_back(d);
   }
 
