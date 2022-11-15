@@ -1,4 +1,4 @@
-name: Build Library and Examples
+name: Build
 
 # See: https://docs.github.com/en/actions/reference/events-that-trigger-workflows
 on:
