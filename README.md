@@ -25,8 +25,9 @@ cmake -DBUILD_EXAMPLES=ON .. && make
 
 using namespace dynamixelplusplus;
 
-static uint16_t const MX28_ControlTable_Torque_Enable = 64;
-static uint16_t const MX28_ControlTable_GoalPosition  = 116;
+static uint16_t const MX28_ControlTable_Torque_Enable   =  64;
+static uint16_t const MX28_ControlTable_GoalPosition    = 116;
+static uint16_t const MX28_ControlTable_PresentPosition = 132;
 
 int main(int argc, char **argv)
 {
@@ -45,6 +46,17 @@ int main(int argc, char **argv)
   std::map<Dynamixel::Id, uint32_t> goal_position_data_map;
   for (auto id : id_vect) goal_position_data_map[id] = (id - 1) * 1024;
   dynamixel_ctrl.syncWrite(MX28_ControlTable_Torque_Enable, goal_position_data_map);
+
+  /* Read current position. */
+  std::map<Dynamixel::Id, uint32_t> position_map;
+  auto err_read = dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
+  if (err_read != Dynamixel::Error::None) {
+    std::cerr << "'syncRead' failed with error code " << static_cast<int>(err_read) << std::endl;
+    return EXIT_FAILURE;
+  }
+  
+  for (auto [id, position_raw] : position_map)
+    std::cout << "Dynamixel MX28 servo #" << static_cast<int>(id) << ": " << position_raw << std::endl;
 
   return EXIT_SUCCESS;
 }
