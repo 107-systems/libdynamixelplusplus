@@ -1,8 +1,8 @@
 ##########################################################################
 cmake_minimum_required(VERSION 3.15)
 ##########################################################################
-set(EXAMPLE_01_TARGET example-03-sync-write)
+set(EXAMPLE_03_TARGET example-03-sync-write)
 ##########################################################################
-add_executable(${EXAMPLE_01_TARGET} example-03-sync-write)
-target_link_libraries(${EXAMPLE_01_TARGET} dynamixel++)
+add_executable(${EXAMPLE_03_TARGET} example-03-sync-write.cpp)
+target_link_libraries(${EXAMPLE_03_TARGET} dynamixel++)
 ##########################################################################
