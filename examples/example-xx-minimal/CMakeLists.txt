@@ -1,8 +1,8 @@
 ##########################################################################
 cmake_minimum_required(VERSION 3.15)
 ##########################################################################
-set(EXAMPLE_01_TARGET example-minimal)
+set(EXAMPLE_XX_TARGET example-xx-minimal)
 ##########################################################################
-add_executable(${EXAMPLE_01_TARGET} example-minimal)
-target_link_libraries(${EXAMPLE_01_TARGET} dynamixel++)
+add_executable(${EXAMPLE_XX_TARGET} example-xx-minimal.cpp)
+target_link_libraries(${EXAMPLE_XX_TARGET} dynamixel++)
 ##########################################################################
