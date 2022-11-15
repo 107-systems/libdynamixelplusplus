@@ -22,6 +22,22 @@
 #include <dynamixel_sdk.h>
 
 /**************************************************************************************
+ * DEFINE
+ **************************************************************************************/
+
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_MAJOR 0001
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR 0000
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH 0000
+
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION_(a,b,c) a ## b ## c
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION(a,b,c) _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION_(a,b,c)
+
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_VERSION \
+        _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION(_107_LIBDYNAMIXELPLUSPLUS_BASE_MAJOR, \
+                                                _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR, \
+                                                _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH)
+
+/**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
 
@@ -35,6 +51,10 @@ namespace dynamixelplusplus
 class Dynamixel
 {
 public:
+
+  static size_t constexpr MAJOR = _107_LIBDYNAMIXELPLUSPLUS_BASE_MAJOR;
+  static size_t constexpr MINOR = _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR;
+  static size_t constexpr PATCH = _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH;
 
   enum class Protocol : int
   {
