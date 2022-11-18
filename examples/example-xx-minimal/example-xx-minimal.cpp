@@ -10,6 +10,9 @@ static uint16_t const MX28_ControlTable_PresentPosition = 132;
 
 int main(int argc, char **argv)
 {
+  (void)argc;
+  (void)argv;
+
   Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
                            Dynamixel::Protocol::V2_0,
                            115200);
