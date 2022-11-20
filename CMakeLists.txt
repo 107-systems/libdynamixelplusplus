@@ -10,7 +10,7 @@ add_subdirectory(lib/dynamixel/current)
 add_library(${PROJECT_NAME} STATIC src/Dynamixel++.cpp)
 ##########################################################################
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Werror -Wextra -Wpedantic)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wextra -Wpedantic)
 endif()
 ##########################################################################
 target_include_directories(${PROJECT_NAME} PUBLIC include)
