@@ -16,6 +16,10 @@ or
 ```bash
 cmake -DBUILD_EXAMPLES=ON .. && make
 ```
+**Note**: You may want to add your user to the `dialout` group in order to access serial devices.
+```bash
+sudo useradd $USER dialout
+```
 
 ### How-to-use
 ```C++
