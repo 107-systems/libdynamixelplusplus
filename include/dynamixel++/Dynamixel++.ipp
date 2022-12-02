@@ -31,6 +31,21 @@ template<> inline int read_n_ByteTxRx<uint32_t>(dynamixel::PacketHandler * packe
   return packet_handler->read4ByteTxRx(port, id, address, data, error);
 }
 
+template<typename T> int write_n_ByteTxRx(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, T data, uint8_t * error);
+
+template<> inline int write_n_ByteTxRx<uint8_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint8_t data, uint8_t * error)
+{
+  return packet_handler->write1ByteTxRx(port, id, address, data, error);
+}
+template<> inline int write_n_ByteTxRx<uint16_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint16_t data, uint8_t * error)
+{
+  return packet_handler->write2ByteTxRx(port, id, address, data, error);
+}
+template<> inline int write_n_ByteTxRx<uint32_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint32_t data, uint8_t * error)
+{
+  return packet_handler->write4ByteTxRx(port, id, address, data, error);
+}
+
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
@@ -72,9 +87,12 @@ template<typename T> Dynamixel::Error Dynamixel::write(uint16_t const start_addr
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
-  std::map<Id, T> val_map;
-  val_map[id] = val;
-  return syncWrite(start_address, val_map);
+  uint8_t error = 0;
+  if (auto const rc = write_n_ByteTxRx(_packet_handler, _port_handler, id, start_address, &val, error);
+    rc == COMM_SUCCESS)
+    return Error::None;
+
+  return Error::Write_n_ByteTxRx;
 }
 
 template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)

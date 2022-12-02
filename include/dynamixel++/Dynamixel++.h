@@ -70,12 +70,13 @@ public:
 
   enum class Error : int
   {
-    None            =  0,
-    AddParam        = -1,
-    TxPacket        = -2,
-    TxRxPacket      = -3,
-    BroadcastPing   = -4,
-    Read_n_ByteTxRx = -5,
+    None             =  0,
+    AddParam         = -1,
+    TxPacket         = -2,
+    TxRxPacket       = -3,
+    BroadcastPing    = -4,
+    Read_n_ByteTxRx  = -5,
+    Write_n_ByteTxRx = -6,
   };
 
   typedef uint8_t         Id;
