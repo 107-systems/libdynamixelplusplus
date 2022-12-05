@@ -57,6 +57,16 @@ std::tuple<Dynamixel::Error, Dynamixel::IdVect> Dynamixel::broadcastPing()
   return std::make_tuple(Error::None, servo_id_vect);
 }
 
+Dynamixel::Error Dynamixel::reboot(Id const id)
+{
+  uint8_t error = 0;
+  if (int const res = _packet_handler->reboot(_port_handler.get(), id, &error);
+      res != COMM_SUCCESS)
+    return Error::Reboot;
+
+  return Error::None;
+}
+
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
