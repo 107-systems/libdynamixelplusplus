@@ -57,7 +57,7 @@ template<typename T> Dynamixel::Error Dynamixel::read(uint16_t const start_addre
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
   uint8_t error = 0;
-  if (auto const rc = read_n_ByteTxRx(_packet_handler, _port_handler, id, start_address, &val, error);
+  if (auto const rc = read_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, &val, &error);
       rc == COMM_SUCCESS)
     return Error::None;
 
