@@ -13,22 +13,55 @@ namespace dynamixelplusplus
 {
 
 /**************************************************************************************
+ * FUNCTION DEFINITION
+ **************************************************************************************/
+
+template<typename T> int read_n_ByteTxRx(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler *port, uint8_t id, uint16_t address, T * data, uint8_t * error);
+
+template<> inline int read_n_ByteTxRx<uint8_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler *port, uint8_t id, uint16_t address, uint8_t * data, uint8_t * error)
+{
+  return packet_handler->read1ByteTxRx(port, id, address, data, error);
+}
+template<> inline int read_n_ByteTxRx<uint16_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler *port, uint8_t id, uint16_t address, uint16_t * data, uint8_t * error)
+{
+  return packet_handler->read2ByteTxRx(port, id, address, data, error);
+}
+template<> inline int read_n_ByteTxRx<uint32_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler *port, uint8_t id, uint16_t address, uint32_t * data, uint8_t * error)
+{
+  return packet_handler->read4ByteTxRx(port, id, address, data, error);
+}
+
+template<typename T> int write_n_ByteTxRx(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, T data, uint8_t * error);
+
+template<> inline int write_n_ByteTxRx<uint8_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint8_t data, uint8_t * error)
+{
+  return packet_handler->write1ByteTxRx(port, id, address, data, error);
+}
+template<> inline int write_n_ByteTxRx<uint16_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint16_t data, uint8_t * error)
+{
+  return packet_handler->write2ByteTxRx(port, id, address, data, error);
+}
+template<> inline int write_n_ByteTxRx<uint32_t>(dynamixel::PacketHandler * packet_handler, dynamixel::PortHandler * port, uint8_t id, uint16_t address, uint32_t data, uint8_t * error)
+{
+  return packet_handler->write4ByteTxRx(port, id, address, data, error);
+}
+
+/**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
-template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_address, Id const id, T & val)
+template<typename T> Dynamixel::Error Dynamixel::read(uint16_t const start_address, Id const id, T & val)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
-  std::map<Id, T> val_map;
-  auto err = syncRead(start_address, IdVect{id}, val_map);
+  uint8_t error = 0;
+  if (auto const rc = read_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, &val, &error);
+      rc == COMM_SUCCESS)
+    return Error::None;
 
-  if (val_map.count(id) > 0)
-    val = val_map.at(id);
-
-  return err;
+  return Error::Read_n_ByteTxRx;
 }
 
 template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map)
@@ -48,15 +81,18 @@ template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_a
   return err;
 }
 
-template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, Id const id, T const val)
+template<typename T> Dynamixel::Error Dynamixel::write(uint16_t const start_address, Id const id, T const val)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
-  std::map<Id, T> val_map;
-  val_map[id] = val;
-  return syncWrite(start_address, val_map);
+  uint8_t error = 0;
+  if (auto const rc = write_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, val, &error);
+    rc == COMM_SUCCESS)
+    return Error::None;
+
+  return Error::Write_n_ByteTxRx;
 }
 
 template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
