@@ -77,6 +77,7 @@ public:
     BroadcastPing    = -4,
     Read_n_ByteTxRx  = -5,
     Write_n_ByteTxRx = -6,
+    Reboot           = -7,
   };
 
   typedef uint8_t         Id;
@@ -84,6 +85,8 @@ public:
 
 
   std::tuple<Error, IdVect> broadcastPing();
+
+  Error reboot(Id const id);
 
   template<typename T> Error read    (uint16_t const start_address, Id const id, T & val);
   template<typename T> Error syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
