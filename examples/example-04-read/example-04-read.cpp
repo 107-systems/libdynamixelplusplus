@@ -31,7 +31,7 @@ static uint16_t const MX28_ControlTable_Firmware_Version = 6;
  * MAIN
  **************************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) try
 {
   Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
                            Dynamixel::Protocol::V2_0,
@@ -43,11 +43,7 @@ int main(int argc, char **argv)
    * file).
    */
 
-  auto [err_id, id_vect] = dynamixel_ctrl.broadcastPing();
-  if (err_id != Dynamixel::Error::None) {
-    std::cerr << "'broadcastPing' failed with error code " << static_cast<int>(err_id) << std::endl;
-    return EXIT_FAILURE;
-  }
+  auto const id_vect = dynamixel_ctrl.broadcastPing();
 
   if (id_vect.empty()) {
     std::cerr << "No dynamixel servos detected." << std::endl;
@@ -66,16 +62,16 @@ int main(int argc, char **argv)
   for (auto id: id_vect)
   {
     uint8_t firmware_version = 0;
-    auto const err_read = dynamixel_ctrl.read(MX28_ControlTable_Firmware_Version, id, firmware_version);
-
-    if (err_read != Dynamixel::Error::None) {
-      std::cerr << "'read' failed with error code " << static_cast<int>(err_read) << std::endl;
-      return EXIT_FAILURE;
-    }
+    dynamixel_ctrl.read(MX28_ControlTable_Firmware_Version, id, firmware_version);
 
     std::cout << "Servo #" << static_cast<int>(id)
               << " firmware version rev. " << static_cast<int>(firmware_version) << std::endl;
   }
 
   return EXIT_SUCCESS;
+}
+catch (dynamixelplusplus::CommunicationError const & e)
+{
+  std::cerr << "CommunicationError caught: " << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

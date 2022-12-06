@@ -21,6 +21,8 @@
 
 #include <dynamixel_sdk.h>
 
+#include "CommunicationError.h"
+
 /**************************************************************************************
  * DEFINE
  **************************************************************************************/
@@ -68,31 +70,19 @@ public:
   ~Dynamixel();
 
 
-  enum class Error : int
-  {
-    None             =  0,
-    AddParam         = -1,
-    TxPacket         = -2,
-    TxRxPacket       = -3,
-    BroadcastPing    = -4,
-    Read_n_ByteTxRx  = -5,
-    Write_n_ByteTxRx = -6,
-    Reboot           = -7,
-  };
-
   typedef uint8_t         Id;
   typedef std::vector<Id> IdVect;
 
 
-  std::tuple<Error, IdVect> broadcastPing();
+  IdVect broadcastPing();
 
-  Error reboot(Id const id);
+  void reboot(Id const id);
 
-  template<typename T> Error read    (uint16_t const start_address, Id const id, T & val);
-  template<typename T> Error syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
+  template<typename T> void read    (uint16_t const start_address, Id const id, T & val);
+  template<typename T> void syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
 
-  template<typename T> Error write    (uint16_t const start_address, Id const id, T const val);
-  template<typename T> Error syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
+  template<typename T> void write    (uint16_t const start_address, Id const id, T const val);
+  template<typename T> void syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
 
 
 private:
@@ -101,14 +91,14 @@ private:
 
   typedef std::tuple<Id, uint8_t *>  SyncWriteData;
   typedef std::vector<SyncWriteData> SyncWriteDataVect;
-  Error syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
+  void syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
 
   typedef std::vector<std::tuple<
                                  Id,
                                  std::optional<uint32_t>
                                 >
                      > SyncReadDataVect;
-  std::tuple<Error, SyncReadDataVect> syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
+  SyncReadDataVect syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 };
 
 /**************************************************************************************

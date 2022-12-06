@@ -5,43 +5,40 @@
  * Contributors: https://github.com/107-systems/libdynamixelplusplus/graphs/contributors.
  */
 
+#ifndef DYNAMIXEL_COMMUNICATIONERROR_H
+#define DYNAMIXEL_COMMUNICATIONERROR_H
+
 /**************************************************************************************
- * INCLUDES
+ * INCLUDE
  **************************************************************************************/
 
-#include <cstdlib>
+#include <stdexcept>
 
-#include <iostream>
-
-#include <dynamixel++/Dynamixel++.h>
+#include <dynamixel_sdk.h>
 
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
 
-using namespace dynamixelplusplus;
+namespace dynamixelplusplus
+{
 
 /**************************************************************************************
- * MAIN
+ * CLASS DECLARATION
  **************************************************************************************/
 
-int main(int argc, char **argv) try
+class CommunicationError : public std::runtime_error
 {
-  Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
-                           Dynamixel::Protocol::V2_0,
-                           115200);
+public:
+  CommunicationError(dynamixel::PacketHandler * packet_handler, int const dxl_err_code)
+  : std::runtime_error{packet_handler->getTxRxResult(dxl_err_code)}
+  { }
+};
 
-  auto const id_vect = dynamixel_ctrl.broadcastPing();
+/**************************************************************************************
+ * NAMESPACE
+ **************************************************************************************/
 
-  std::cout << "detected Dynamixel servos: ";
-  for (auto id : id_vect)
-    std::cout << static_cast<int>(id) << " ";
-  std::cout << std::endl;
+} /* dynamixelplusplus */
 
-  return EXIT_SUCCESS;
-}
-catch (dynamixelplusplus::CommunicationError const & e)
-{
-  std::cerr << "CommunicationError caught: " << e.what() << std::endl;
-  return EXIT_FAILURE;
-}
+#endif /* DYNAMIXEL_COMMUNICATIONERROR_H */

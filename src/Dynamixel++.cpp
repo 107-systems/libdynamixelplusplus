@@ -46,65 +46,58 @@ Dynamixel::~Dynamixel()
  * PUBLIC MEMBER FUNCTION
  **************************************************************************************/
 
-std::tuple<Dynamixel::Error, Dynamixel::IdVect> Dynamixel::broadcastPing()
+Dynamixel::IdVect Dynamixel::broadcastPing()
 {
   IdVect servo_id_vect;
 
   if (int const res = _packet_handler->broadcastPing(_port_handler.get(), servo_id_vect);
-      res != COMM_SUCCESS)
-    return std::make_tuple(Error::BroadcastPing, servo_id_vect);
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
 
-  return std::make_tuple(Error::None, servo_id_vect);
+  return servo_id_vect;
 }
 
-Dynamixel::Error Dynamixel::reboot(Id const id)
+void Dynamixel::reboot(Id const id)
 {
   uint8_t error = 0;
   if (int const res = _packet_handler->reboot(_port_handler.get(), id, &error);
-      res != COMM_SUCCESS)
-    return Error::Reboot;
-
-  return Error::None;
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
 }
 
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data)
+void Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data)
 {
   dynamixel::GroupSyncWrite group_sync_write(_port_handler.get(), _packet_handler.get(), start_address, data_length);
 
   for(auto [id, data_ptr] : data)
-  {
-    if (!group_sync_write.addParam(id, data_ptr))
-      return Error::AddParam;
+    group_sync_write.addParam(id, data_ptr);
+
+  if (int const res = group_sync_write.txPacket();
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
   }
-
-  if (int res = group_sync_write.txPacket();
-      res != COMM_SUCCESS)
-    return Error::TxPacket;
-
   group_sync_write.clearParam();
-
-  return Error::None;
 }
 
-std::tuple<Dynamixel::Error, Dynamixel::SyncReadDataVect> Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
+Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
 {
   SyncReadDataVect data_vect;
 
   dynamixel::GroupSyncRead group_sync_read(_port_handler.get(), _packet_handler.get(), start_address, data_length);
 
   for(auto id : id_vect)
-  {
-    if (!group_sync_read.addParam(id))
-      return std::make_tuple(Error::AddParam, data_vect);
-  }
+    group_sync_read.addParam(id);
 
-  if (int res = group_sync_read.txRxPacket();
-      res != COMM_SUCCESS)
-    return std::make_tuple(Error::TxRxPacket, data_vect);
+  if (int const res = group_sync_read.txRxPacket();
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
 
   for(auto id : id_vect)
   {
@@ -123,7 +116,7 @@ std::tuple<Dynamixel::Error, Dynamixel::SyncReadDataVect> Dynamixel::syncRead(ui
 
   group_sync_read.clearParam();
 
-  return std::make_tuple(Error::None, data_vect);
+  return data_vect;
 }
 
 /**************************************************************************************

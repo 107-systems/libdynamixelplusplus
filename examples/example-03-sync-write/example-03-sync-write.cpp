@@ -32,14 +32,14 @@ static uint16_t const MX28_ControlTable_LED = 65;
  * FUNCTION DECLARATION
  **************************************************************************************/
 
-Dynamixel::Error turnLedOn (Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect);
-Dynamixel::Error turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect);
+void turnLedOn (Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect);
+void turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect);
 
 /**************************************************************************************
  * MAIN
  **************************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) try
 {
   Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
                            Dynamixel::Protocol::V2_0,
@@ -51,11 +51,7 @@ int main(int argc, char **argv)
    * file).
    */
 
-  auto [err_id, id_vect] = dynamixel_ctrl.broadcastPing();
-  if (err_id != Dynamixel::Error::None) {
-    std::cerr << "'broadcastPing' failed with error code " << static_cast<int>(err_id) << std::endl;
-    return EXIT_FAILURE;
-  }
+  auto const id_vect = dynamixel_ctrl.broadcastPing();
 
   if (id_vect.empty()) {
     std::cerr << "No dynamixel servos detected." << std::endl;
@@ -74,46 +70,40 @@ int main(int argc, char **argv)
    */
   for (;;)
   {
-    /* Turn all LEDs on. */
-    if (auto err = turnLedOn(dynamixel_ctrl, id_vect); err != Dynamixel::Error::None) {
-      std::cerr << "'turnLedOn' failed with error code " << static_cast<int>(err) << std::endl;
-      return EXIT_FAILURE;
-    }
-
+    turnLedOn(dynamixel_ctrl, id_vect);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    /* Turn all LEDs off. */
-    if (auto err = turnLedOff(dynamixel_ctrl, id_vect); err != Dynamixel::Error::None) {
-      std::cerr << "'turnLedOff' failed with error code " << static_cast<int>(err) << std::endl;
-      return EXIT_FAILURE;
-    }
-
+    turnLedOff(dynamixel_ctrl, id_vect);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
   return EXIT_SUCCESS;
+}
+catch (dynamixelplusplus::CommunicationError const & e)
+{
+  std::cerr << "CommunicationError caught: " << e.what() << std::endl;
+  return EXIT_FAILURE;
 }
 
 /**************************************************************************************
  * FUNCTION DEFINITION
  **************************************************************************************/
 
-Dynamixel::Error turnLedOn(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
+void turnLedOn(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
   std::map<Dynamixel::Id, uint8_t> led_on_data_map;
 
   for (auto id : id_vect)
     led_on_data_map[id] = 1;
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_on_data_map);
+  dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_on_data_map);
 }
 
-Dynamixel::Error turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
+void turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
   std::map<Dynamixel::Id, uint8_t> led_off_data_map;
 
   for (auto id : id_vect)
     led_off_data_map[id] = 0;
 
-  return dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_off_data_map);
+  dynamixel_ctrl.syncWrite(MX28_ControlTable_LED, led_off_data_map);
 }
