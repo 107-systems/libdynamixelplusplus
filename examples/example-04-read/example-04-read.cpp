@@ -61,8 +61,7 @@ int main(int argc, char **argv) try
 
   for (auto id: id_vect)
   {
-    uint8_t firmware_version = 0;
-    dynamixel_ctrl.read(MX28_ControlTable_Firmware_Version, id, firmware_version);
+    uint8_t const firmware_version = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_Firmware_Version, id);
 
     std::cout << "Servo #" << static_cast<int>(id)
               << " firmware version rev. " << static_cast<int>(firmware_version) << std::endl;

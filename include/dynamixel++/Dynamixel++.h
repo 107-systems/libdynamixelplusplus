@@ -36,8 +36,8 @@
 
 #define _107_LIBDYNAMIXELPLUSPLUS_BASE_VERSION \
         _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION(_107_LIBDYNAMIXELPLUSPLUS_BASE_MAJOR, \
-                                                _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR, \
-                                                _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH)
+                                                      _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR, \
+                                                      _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH)
 
 /**************************************************************************************
  * NAMESPACE
@@ -78,8 +78,8 @@ public:
 
   void reboot(Id const id);
 
-  template<typename T> void read    (uint16_t const start_address, Id const id, T & val);
-  template<typename T> void syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map);
+  template<typename T> T               read    (uint16_t const start_address, Id const id);
+  template<typename T> std::map<Id, T> syncRead(uint16_t const start_address, IdVect const & id_vect);
 
   template<typename T> void write    (uint16_t const start_address, Id const id, T const val);
   template<typename T> void syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
