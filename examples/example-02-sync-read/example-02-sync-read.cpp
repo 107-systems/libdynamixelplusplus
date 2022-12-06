@@ -66,8 +66,10 @@ int main(int argc, char **argv) try
   catch (dynamixelplusplus::HardwareAlert const & e)
   {
     uint8_t const hw_err_code = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_HardwareErrorStatus, e.id());
-    if (hw_err_code)
+    if (hw_err_code) {
+      std::cerr << "HardwareAlert for servo #" << static_cast<int>(e.id()) << "caught: " << static_cast<int>(hw_err_code) << std::endl;
       dynamixel_ctrl.reboot(e.id());
+    }
   }
 
   for (auto [id, position_raw] : position_map)
