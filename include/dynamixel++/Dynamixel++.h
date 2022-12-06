@@ -21,6 +21,7 @@
 
 #include <dynamixel_sdk.h>
 
+#include "StatusError.h"
 #include "CommunicationError.h"
 
 /**************************************************************************************

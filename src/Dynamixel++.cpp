@@ -65,6 +65,9 @@ void Dynamixel::reboot(Id const id)
       res != COMM_SUCCESS) {
     throw CommunicationError(_packet_handler.get(), res);
   }
+
+  if (error)
+    throw StatusError(_packet_handler.get(), error);
 }
 
 /**************************************************************************************
@@ -103,7 +106,8 @@ Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, ui
   {
     uint8_t dxl_error = 0;
     if (group_sync_read.getError(id, &dxl_error))
-      throw std::runtime_error("'GroupSyncRead::getError(%d)' returns " + std::string(_packet_handler->getRxPacketError(dxl_error)));
+      if (dxl_error)
+        throw StatusError(_packet_handler.get(), dxl_error);
   }
 
   for(auto id : id_vect)
