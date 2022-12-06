@@ -30,9 +30,15 @@ namespace dynamixelplusplus
 class HardwareAlert : public std::runtime_error
 {
 public:
-  HardwareAlert()
-    : std::runtime_error{"HardwareAlert"}
+  HardwareAlert(uint8_t const id)
+  : std::runtime_error{"HardwareAlert"}
+  , _id{id}
   { }
+
+  inline uint8_t id() const { return _id; }
+
+private:
+  uint8_t const _id;
 };
 
 /**************************************************************************************

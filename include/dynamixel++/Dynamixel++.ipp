@@ -64,8 +64,8 @@ template<typename T> T Dynamixel::read(uint16_t const start_address, Id const id
   }
 
   if (error & 0x80)
-    throw HardwareAlert();
-  else
+    throw HardwareAlert(id);
+  else if(error & 0x7F)
     throw StatusError(_packet_handler.get(), error & 0x7F);
 
   return val;
@@ -102,8 +102,8 @@ template<typename T> void Dynamixel::write(uint16_t const start_address, Id cons
   }
 
   if (error & 0x80)
-    throw HardwareAlert();
-  else
+    throw HardwareAlert(id);
+  else if(error & 0x7F)
     throw StatusError(_packet_handler.get(), error & 0x7F);
 }
 
