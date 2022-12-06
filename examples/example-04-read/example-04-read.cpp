@@ -74,3 +74,8 @@ catch (dynamixelplusplus::CommunicationError const & e)
   std::cerr << "CommunicationError caught: " << e.what() << std::endl;
   return EXIT_FAILURE;
 }
+catch (dynamixelplusplus::StatusError const & e)
+{
+  std::cerr << "StatusError caught: " << e.what() << std::endl;
+  return EXIT_FAILURE;
+}
