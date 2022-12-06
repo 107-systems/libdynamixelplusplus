@@ -25,7 +25,8 @@ using namespace dynamixelplusplus;
  * CONST
  **************************************************************************************/
 
-static uint16_t const MX28_ControlTable_PresentPosition = 132;
+static uint16_t const MX28_ControlTable_HardwareErrorStatus = 70;
+static uint16_t const MX28_ControlTable_PresentPosition     = 132;
 
 /**************************************************************************************
  * MAIN
@@ -57,7 +58,17 @@ int main(int argc, char **argv) try
   /* Read the current angle from all those servos
    * and print it to std::cout.
    */
-  std::map<Dynamixel::Id, uint32_t> const position_map = dynamixel_ctrl.syncRead<uint32_t>(MX28_ControlTable_PresentPosition, id_vect);
+  std::map<Dynamixel::Id, uint32_t> position_map;
+  try
+  {
+    position_map = dynamixel_ctrl.syncRead<uint32_t>(MX28_ControlTable_PresentPosition, id_vect);
+  }
+  catch (dynamixelplusplus::HardwareAlert const & e)
+  {
+    uint8_t const hw_err_code = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_HardwareErrorStatus, e.id());
+    if (hw_err_code)
+      dynamixel_ctrl.reboot(e.id());
+  }
 
   for (auto [id, position_raw] : position_map)
   {

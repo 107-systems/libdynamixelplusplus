@@ -26,7 +26,8 @@ using namespace dynamixelplusplus;
  * CONST
  **************************************************************************************/
 
-static uint16_t const MX28_ControlTable_LED = 65;
+static uint16_t const MX28_ControlTable_LED                 = 65;
+static uint16_t const MX28_ControlTable_HardwareErrorStatus = 70;
 
 /**************************************************************************************
  * FUNCTION DECLARATION
@@ -53,13 +54,14 @@ int main(int argc, char **argv) try
 
   auto const id_vect = dynamixel_ctrl.broadcastPing();
 
-  if (id_vect.empty()) {
+  if (id_vect.empty())
+  {
     std::cerr << "No dynamixel servos detected." << std::endl;
     return EXIT_FAILURE;
   }
 
   std::cout << "detected Dynamixel servos: ";
-  for (auto id : id_vect)
+  for (auto id: id_vect)
     std::cout << static_cast<int>(id) << " ";
   std::cout << std::endl;
 
@@ -70,15 +72,24 @@ int main(int argc, char **argv) try
    */
   for (;;)
   {
-    for (auto id : id_vect)
-      turnLedOn(dynamixel_ctrl, id);
+    try
+    {
+      for (auto id: id_vect)
+        turnLedOn(dynamixel_ctrl, id);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    for (auto id : id_vect)
-      turnLedOff(dynamixel_ctrl, id);
+      for (auto id: id_vect)
+        turnLedOff(dynamixel_ctrl, id);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    catch (dynamixelplusplus::HardwareAlert const &e)
+    {
+      uint8_t const hw_err_code = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_HardwareErrorStatus, e.id());
+      if (hw_err_code)
+        dynamixel_ctrl.reboot(e.id());
+    }
   }
 
   return EXIT_SUCCESS;
