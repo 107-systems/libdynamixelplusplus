@@ -57,8 +57,7 @@ int main(int argc, char **argv) try
   /* Read the current angle from all those servos
    * and print it to std::cout.
    */
-  std::map<Dynamixel::Id, uint32_t> position_map;
-  dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
+  std::map<Dynamixel::Id, uint32_t> const position_map = dynamixel_ctrl.syncRead<uint32_t>(MX28_ControlTable_PresentPosition, id_vect);
 
   for (auto [id, position_raw] : position_map)
   {
