@@ -25,7 +25,8 @@ using namespace dynamixelplusplus;
  * CONST
  **************************************************************************************/
 
-static uint16_t const MX28_ControlTable_Firmware_Version = 6;
+static uint16_t const MX28_ControlTable_Firmware_Version    =  6;
+static uint16_t const MX28_ControlTable_HardwareErrorStatus = 70;
 
 /**************************************************************************************
  * MAIN
@@ -61,10 +62,22 @@ int main(int argc, char **argv) try
 
   for (auto id: id_vect)
   {
-    uint8_t const firmware_version = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_Firmware_Version, id);
+    try
+    {
+      uint8_t const firmware_version = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_Firmware_Version, id);
 
-    std::cout << "Servo #" << static_cast<int>(id)
-              << " firmware version rev. " << static_cast<int>(firmware_version) << std::endl;
+      std::cout << "Servo #" << static_cast<int>(id)
+                << " firmware version rev. " << static_cast<int>(firmware_version) << std::endl;
+    }
+    catch (dynamixelplusplus::HardwareAlert const & e)
+    {
+      uint8_t const hw_err_code = dynamixel_ctrl.read<uint8_t>(MX28_ControlTable_HardwareErrorStatus, e.id());
+      if (hw_err_code) {
+        std::cerr << "HardwareAlert for servo #" << static_cast<int>(e.id()) << "caught: " << static_cast<int>(hw_err_code) << std::endl;
+        dynamixel_ctrl.reboot(e.id());
+      }
+
+    }
   }
 
   return EXIT_SUCCESS;

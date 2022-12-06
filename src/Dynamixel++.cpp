@@ -66,8 +66,10 @@ void Dynamixel::reboot(Id const id)
     throw CommunicationError(_packet_handler.get(), res);
   }
 
-  if (error)
-    throw StatusError(_packet_handler.get(), error);
+  if (error & 0x80)
+    throw HardwareAlert(id);
+  else if(error & 0x7F)
+    throw StatusError(_packet_handler.get(), error & 0x7F);
 }
 
 /**************************************************************************************
@@ -106,8 +108,12 @@ Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, ui
   {
     uint8_t dxl_error = 0;
     if (group_sync_read.getError(id, &dxl_error))
-      if (dxl_error)
-        throw StatusError(_packet_handler.get(), dxl_error);
+    {
+      if (dxl_error & 0x80)
+        throw HardwareAlert(id);
+      else if(dxl_error & 0x7F)
+        throw StatusError(_packet_handler.get(), dxl_error & 0x7F);
+    }
   }
 
   for(auto id : id_vect)
