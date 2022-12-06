@@ -8,7 +8,7 @@ static uint16_t const MX28_ControlTable_Torque_Enable   =  64;
 static uint16_t const MX28_ControlTable_GoalPosition    = 116;
 static uint16_t const MX28_ControlTable_PresentPosition = 132;
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) try
 {
   Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
                            Dynamixel::Protocol::V2_0,
@@ -28,14 +28,15 @@ int main(int argc, char **argv)
 
   /* Read current position. */
   std::map<Dynamixel::Id, uint32_t> position_map;
-  auto err_read = dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
-  if (err_read != Dynamixel::Error::None) {
-    std::cerr << "'syncRead' failed with error code " << static_cast<int>(err_read) << std::endl;
-    return EXIT_FAILURE;
-  }
-  
+  dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
+
   for (auto [id, position_raw] : position_map)
     std::cout << "Dynamixel MX28 servo #" << static_cast<int>(id) << ": " << position_raw << std::endl;
 
   return EXIT_SUCCESS;
+}
+catch (dynamixelplusplus::CommunicationError const & e)
+{
+  std::cerr << "CommunicationError caught: " << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

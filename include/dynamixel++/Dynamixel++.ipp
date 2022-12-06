@@ -50,52 +50,48 @@ template<> inline int write_n_ByteTxRx<uint32_t>(dynamixel::PacketHandler * pack
  * CLASS DECLARATION
  **************************************************************************************/
 
-template<typename T> Dynamixel::Error Dynamixel::read(uint16_t const start_address, Id const id, T & val)
+template<typename T> void Dynamixel::read(uint16_t const start_address, Id const id, T & val)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
   uint8_t error = 0;
-  if (auto const rc = read_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, &val, &error);
-      rc == COMM_SUCCESS)
-    return Error::None;
-
-  return Error::Read_n_ByteTxRx;
+  if (auto const res = read_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, &val, &error);
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
 }
 
-template<typename T> Dynamixel::Error Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map)
+template<typename T> void Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect, std::map<Id, T> & val_map)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
-  auto [err, sync_read_data_vect] = syncRead(start_address, sizeof(T), id_vect);
+  auto sync_read_data_vect = syncRead(start_address, sizeof(T), id_vect);
 
   for (auto [id, opt_data] : sync_read_data_vect)
   {
     if (opt_data.has_value())
       val_map[id] = static_cast<T>(opt_data.value());
   }
-
-  return err;
 }
 
-template<typename T> Dynamixel::Error Dynamixel::write(uint16_t const start_address, Id const id, T const val)
+template<typename T> void Dynamixel::write(uint16_t const start_address, Id const id, T const val)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
                 std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
 
   uint8_t error = 0;
-  if (auto const rc = write_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, val, &error);
-    rc == COMM_SUCCESS)
-    return Error::None;
-
-  return Error::Write_n_ByteTxRx;
+  if (auto const res = write_n_ByteTxRx<T>(_packet_handler.get(), _port_handler.get(), id, start_address, val, &error);
+      res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
 }
 
-template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
+template<typename T> void Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
                 std::is_same<T, uint16_t>::value ||
@@ -126,7 +122,7 @@ template<typename T> Dynamixel::Error Dynamixel::syncWrite(uint16_t const start_
   /* Call the actual sync write API invoking the underlying
    * DynamixelSDK sync write API.
    */
-  return syncWrite(start_address, sizeof(T), data_vect);
+  syncWrite(start_address, sizeof(T), data_vect);
 }
 
 /**************************************************************************************

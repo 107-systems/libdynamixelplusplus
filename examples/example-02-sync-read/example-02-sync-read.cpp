@@ -31,7 +31,7 @@ static uint16_t const MX28_ControlTable_PresentPosition = 132;
  * MAIN
  **************************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char **argv) try
 {
   Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
                            Dynamixel::Protocol::V2_0,
@@ -43,12 +43,7 @@ int main(int argc, char **argv)
    * file).
    */
 
-  auto [err_id, id_vect] = dynamixel_ctrl.broadcastPing();
-  if (err_id != Dynamixel::Error::None) {
-    std::cerr << "'broadcastPing' failed with error code " << static_cast<int>(err_id) << std::endl;
-    return EXIT_FAILURE;
-  }
-
+  auto const id_vect = dynamixel_ctrl.broadcastPing();
   if (id_vect.empty()) {
     std::cerr << "No dynamixel servos detected." << std::endl;
     return EXIT_FAILURE;
@@ -63,13 +58,8 @@ int main(int argc, char **argv)
    * and print it to std::cout.
    */
   std::map<Dynamixel::Id, uint32_t> position_map;
-  auto err_read = dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
-  if (err_read != Dynamixel::Error::None)
-  {
-    std::cerr << "'syncRead' failed with error code " << static_cast<int>(err_read) << std::endl;
-    return EXIT_FAILURE;
-  }
-  
+  dynamixel_ctrl.syncRead(MX28_ControlTable_PresentPosition, id_vect, position_map);
+
   for (auto [id, position_raw] : position_map)
   {
     float const position_deg = static_cast<float>(position_raw) * 360.0f / 4096;
@@ -82,4 +72,9 @@ int main(int argc, char **argv)
   }
 
   return EXIT_SUCCESS;
+}
+catch (dynamixelplusplus::CommunicationError const & e)
+{
+  std::cerr << "CommunicationError caught: " << e.what() << std::endl;
+  return EXIT_FAILURE;
 }
