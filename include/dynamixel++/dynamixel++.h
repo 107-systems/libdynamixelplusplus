@@ -13,5 +13,6 @@
  **************************************************************************************/
 
 #include "Dynamixel.hpp"
+#include "SyncGroup.hpp"
 
 #endif /* DYNAMIXEL_DYNAMIXELPLUSPLUS_H */
