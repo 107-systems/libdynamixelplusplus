@@ -90,6 +90,20 @@ void Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_leng
   group_sync_write.clearParam();
 }
 
+void Dynamixel::bulkWrite(uint16_t const start_address, uint16_t const data_length, BulkWriteDataVect const & data)
+{
+  dynamixel::GroupBulkWrite group_bulk_write(_port_handler.get(), _packet_handler.get());
+
+  for(auto [id, data_ptr] : data)
+    group_bulk_write.addParam(id, start_address, data_length, data_ptr);
+
+  if (int const res = group_bulk_write.txPacket();
+    res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
+  group_bulk_write.clearParam();
+}
+
 Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
 {
   SyncReadDataVect data_vect;

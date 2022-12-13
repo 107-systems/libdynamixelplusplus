@@ -24,6 +24,7 @@ if(BUILD_EXAMPLES)
     add_subdirectory(examples/example-04-read)
     add_subdirectory(examples/example-05-write)
     add_subdirectory(examples/example-06-bulk-read)
+    add_subdirectory(examples/example-07-bulk-write)
     add_subdirectory(examples/example-xx-minimal)
 endif()
 ##########################################################################
