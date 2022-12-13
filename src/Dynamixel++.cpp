@@ -129,6 +129,45 @@ Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, ui
   return data_vect;
 }
 
+Dynamixel::BulkReadDataVect Dynamixel::bulkRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
+{
+  BulkReadDataVect data_vect;
+
+  dynamixel::GroupBulkRead group_bulk_read(_port_handler.get(), _packet_handler.get());
+
+  for(auto id : id_vect)
+    group_bulk_read.addParam(id, start_address, data_length);
+
+  if (int const res = group_bulk_read.txRxPacket();
+    res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
+
+  for(auto id : id_vect)
+  {
+    uint8_t dxl_error = 0;
+    if (group_bulk_read.getError(id, &dxl_error))
+    {
+      if (dxl_error & 0x80)
+        throw HardwareAlert(id);
+      else if(dxl_error & 0x7F)
+        throw StatusError(_packet_handler.get(), dxl_error & 0x7F);
+    }
+  }
+
+  for(auto id : id_vect)
+  {
+    if (group_bulk_read.isAvailable(id, start_address, data_length))
+      data_vect.push_back(std::make_tuple(id, group_bulk_read.getData(id, start_address, data_length)));
+    else
+      data_vect.push_back(std::make_tuple(id, std::nullopt));
+  }
+
+  group_bulk_read.clearParam();
+
+  return data_vect;
+}
+
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/

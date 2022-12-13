@@ -81,6 +81,7 @@ public:
   void reboot(Id const id);
 
   template<typename T> T               read    (uint16_t const start_address, Id const id);
+  template<typename T> std::map<Id, T> bulkRead(uint16_t const start_address, IdVect const & id_vect);
   template<typename T> std::map<Id, T> syncRead(uint16_t const start_address, IdVect const & id_vect);
 
   template<typename T> void write    (uint16_t const start_address, Id const id, T const val);
@@ -100,7 +101,9 @@ private:
                                  std::optional<uint32_t>
                                 >
                      > SyncReadDataVect;
+  typedef SyncReadDataVect BulkReadDataVect;
   SyncReadDataVect syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
+  BulkReadDataVect bulkRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 };
 
 /**************************************************************************************

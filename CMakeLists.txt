@@ -23,6 +23,7 @@ if(BUILD_EXAMPLES)
     add_subdirectory(examples/example-03-sync-write)
     add_subdirectory(examples/example-04-read)
     add_subdirectory(examples/example-05-write)
+    add_subdirectory(examples/example-06-bulk-read)
     add_subdirectory(examples/example-xx-minimal)
 endif()
 ##########################################################################
