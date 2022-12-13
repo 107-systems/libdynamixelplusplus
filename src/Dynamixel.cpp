@@ -9,7 +9,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include <dynamixel++/Dynamixel++.h>
+#include <dynamixel++/Dynamixel.hpp>
 
 #include <stdexcept>
 

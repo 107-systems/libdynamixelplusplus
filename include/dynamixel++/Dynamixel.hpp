@@ -126,6 +126,6 @@ typedef std::shared_ptr<Dynamixel> SharedDynamixel;
  * TEMPLATE IMPLEMENTATION
  **************************************************************************************/
 
-#include "Dynamixel++.ipp"
+#include "Dynamixel.ipp"
 
 #endif /* DYNAMIXEL_H_ */
