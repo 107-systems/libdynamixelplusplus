@@ -14,7 +14,7 @@
 #include <thread>
 #include <iostream>
 
-#include <dynamixel++/Dynamixel++.h>
+#include <dynamixel++/dynamixel++.h>
 
 /**************************************************************************************
  * NAMESPACE
