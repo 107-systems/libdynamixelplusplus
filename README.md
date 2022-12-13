@@ -59,12 +59,12 @@ int main(int argc, char **argv) try
 
   return EXIT_SUCCESS;
 }
-catch (dynamixelplusplus::CommunicationError const & e)
+catch (CommunicationError const & e)
 {
   std::cerr << "CommunicationError caught: " << e.what() << std::endl;
   return EXIT_FAILURE;
 }
-catch (dynamixelplusplus::StatusError const & e)
+catch (StatusError const & e)
 {
   std::cerr << "StatusError caught: " << e.what() << std::endl;
   return EXIT_FAILURE;
