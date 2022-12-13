@@ -1,8 +1,8 @@
 ##########################################################################
 cmake_minimum_required(VERSION 3.15)
 ##########################################################################
-set(EXAMPLE_07_TARGET example-07-bulk-write)
+set(EXAMPLE_06_TARGET example-06-bulk-write)
 ##########################################################################
-add_executable(${EXAMPLE_07_TARGET} example-07-bulk-write.cpp)
-target_link_libraries(${EXAMPLE_07_TARGET} dynamixel++)
+add_executable(${EXAMPLE_06_TARGET} example-06-bulk-write.cpp)
+target_link_libraries(${EXAMPLE_06_TARGET} dynamixel++)
 ##########################################################################
