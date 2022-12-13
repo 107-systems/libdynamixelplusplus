@@ -71,6 +71,24 @@ template<typename T> T Dynamixel::read(uint16_t const start_address, Id const id
   return val;
 }
 
+template<typename T> std::map<Dynamixel::Id, T> Dynamixel::bulkRead(uint16_t const start_address, IdVect const & id_vect)
+{
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
+  auto bulk_read_data_vect = bulkRead(start_address, sizeof(T), id_vect);
+
+  std::map<Id, T> val_map;
+  for (auto [id, opt_data] : bulk_read_data_vect)
+  {
+    if (opt_data.has_value())
+      val_map[id] = static_cast<T>(opt_data.value());
+  }
+
+  return val_map;
+}
+
 template<typename T> std::map<Dynamixel::Id, T> Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
@@ -105,6 +123,40 @@ template<typename T> void Dynamixel::write(uint16_t const start_address, Id cons
     throw HardwareAlert(id);
   else if(error & 0x7F)
     throw StatusError(_packet_handler.get(), error & 0x7F);
+}
+
+template<typename T> void Dynamixel::bulkWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
+{
+  static_assert(std::is_same<T, uint8_t>::value  ||
+                std::is_same<T, uint16_t>::value ||
+                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
+
+  /* Convert the functions input data into the required
+   * format to feed to the Dynamixel SDK.
+   */
+  std::vector<Id> id_vect;
+  std::vector<T> value_vect;
+  for (auto [id, val] : val_map)
+  {
+    id_vect.push_back(id);
+    value_vect.push_back(val);
+  }
+
+  /* This 2-step dance is necessary because we need to pass a pointer
+   * to a local variable which still needs to exist in scope until
+   * bulkWrite has been fully executed.
+   */
+  BulkWriteDataVect data_vect;
+  for (size_t i = 0; i < id_vect.size(); i++)
+  {
+    BulkWriteData const d = std::make_tuple(id_vect[i], reinterpret_cast<uint8_t *>(&value_vect[i]));
+    data_vect.push_back(d);
+  }
+
+  /* Call the actual sync write API invoking the underlying
+   * DynamixelSDK sync write API.
+   */
+  bulkWrite(start_address, sizeof(T), data_vect);
 }
 
 template<typename T> void Dynamixel::syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map)
