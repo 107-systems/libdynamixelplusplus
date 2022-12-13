@@ -1,8 +1,8 @@
 ##########################################################################
 cmake_minimum_required(VERSION 3.15)
 ##########################################################################
-set(EXAMPLE_06_TARGET example-06-bulk-read)
+set(EXAMPLE_03_TARGET example-03-bulk-read)
 ##########################################################################
-add_executable(${EXAMPLE_06_TARGET} example-06-bulk-read.cpp)
-target_link_libraries(${EXAMPLE_06_TARGET} dynamixel++)
+add_executable(${EXAMPLE_03_TARGET} example-03-bulk-read.cpp)
+target_link_libraries(${EXAMPLE_03_TARGET} dynamixel++)
 ##########################################################################
