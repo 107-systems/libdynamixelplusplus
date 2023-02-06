@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <variant>
 
 #include <dynamixel_sdk.h>
 
@@ -75,7 +76,6 @@ public:
   typedef uint8_t         Id;
   typedef std::vector<Id> IdVect;
 
-
   IdVect broadcastPing();
 
   void reboot(Id const id);
@@ -85,8 +85,11 @@ public:
   template<typename T> std::map<Id, T> syncRead(uint16_t const start_address, IdVect const & id_vect);
 
   template<typename T> void write    (uint16_t const start_address, Id const id, T const val);
-  template<typename T> void bulkWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
   template<typename T> void syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
+
+  typedef std::tuple<Id, uint16_t, std::variant<uint8_t, uint16_t, uint32_t>> BulkWriteData;
+  typedef std::vector<BulkWriteData> BulkWriteDataVect;
+  void bulkWrite(BulkWriteDataVect const & bulk_write_data);
 
 
 private:
@@ -96,9 +99,6 @@ private:
   typedef std::tuple<Id, uint8_t *>  SyncWriteData;
   typedef std::vector<SyncWriteData> SyncWriteDataVect;
   void syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
-  typedef SyncWriteData     BulkWriteData;
-  typedef SyncWriteDataVect BulkWriteDataVect;
-  void bulkWrite(uint16_t const start_address, uint16_t const data_length, BulkWriteDataVect const & data);
 
   typedef std::vector<std::tuple<
                                  Id,

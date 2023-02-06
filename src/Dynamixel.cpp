@@ -72,6 +72,47 @@ void Dynamixel::reboot(Id const id)
     throw StatusError(_packet_handler.get(), error & 0x7F);
 }
 
+void Dynamixel::bulkWrite(BulkWriteDataVect const & bulk_write_data)
+{
+  dynamixel::GroupBulkWrite group_bulk_write(_port_handler.get(), _packet_handler.get());
+
+  /* Unfortunately we need to copy and hold the data until the bulk write
+   * has been completed. This works best by adding it temporarily to some
+   * std::vector.
+   */
+  std::vector<std::shared_ptr<uint8_t>>  tmp_val_uint8_t;
+  std::vector<std::shared_ptr<uint16_t>> tmp_val_uint16_t;
+  std::vector<std::shared_ptr<uint32_t>> tmp_val_uint32_t;
+
+  for(auto [id, start_address, value] : bulk_write_data)
+  {
+    if (std::holds_alternative<uint8_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint8_t>(std::get<uint8_t>(value));
+      tmp_val_uint8_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint8_t), tmp_val.get());
+    }
+    else if (std::holds_alternative<uint16_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint16_t>(std::get<uint16_t>(value));
+      tmp_val_uint16_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint16_t), reinterpret_cast<uint8_t *>(tmp_val.get()));
+    }
+    else if (std::holds_alternative<uint32_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint32_t>(std::get<uint32_t>(value));
+      tmp_val_uint32_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint32_t), reinterpret_cast<uint8_t *>(tmp_val.get()));
+    }
+  }
+
+  if (int const res = group_bulk_write.txPacket();
+    res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
+  group_bulk_write.clearParam();
+}
+
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
@@ -88,20 +129,6 @@ void Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_leng
     throw CommunicationError(_packet_handler.get(), res);
   }
   group_sync_write.clearParam();
-}
-
-void Dynamixel::bulkWrite(uint16_t const start_address, uint16_t const data_length, BulkWriteDataVect const & data)
-{
-  dynamixel::GroupBulkWrite group_bulk_write(_port_handler.get(), _packet_handler.get());
-
-  for(auto [id, data_ptr] : data)
-    group_bulk_write.addParam(id, start_address, data_length, data_ptr);
-
-  if (int const res = group_bulk_write.txPacket();
-    res != COMM_SUCCESS) {
-    throw CommunicationError(_packet_handler.get(), res);
-  }
-  group_bulk_write.clearParam();
 }
 
 Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
