@@ -72,6 +72,89 @@ void Dynamixel::reboot(Id const id)
     throw StatusError(_packet_handler.get(), error & 0x7F);
 }
 
+Dynamixel::BulkReadDataMap Dynamixel::bulkRead(BulkReadRequestVect const & bulk_read_req)
+{
+  BulkReadDataMap data_map;
+
+  dynamixel::GroupBulkRead group_bulk_read(_port_handler.get(), _packet_handler.get());
+
+  for(auto [id, start_address, data_length] : bulk_read_req)
+    group_bulk_read.addParam(id, start_address, data_length);
+
+  if (int const res = group_bulk_read.txRxPacket();
+    res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
+
+  for(auto [id, start_address, data_length] : bulk_read_req)
+  {
+    uint8_t dxl_error = 0;
+
+    if (group_bulk_read.getError(id, &dxl_error))
+    {
+      if (dxl_error & 0x80)
+        throw HardwareAlert(id);
+      else if(dxl_error & 0x7F)
+        throw StatusError(_packet_handler.get(), dxl_error & 0x7F);
+    }
+
+    if (group_bulk_read.isAvailable(id, start_address, data_length))
+    {
+      if (data_length == 1)
+        data_map[id] = static_cast<uint8_t>(group_bulk_read.getData(id, start_address, data_length));
+      else if (data_length == 2)
+        data_map[id] = static_cast<uint16_t>(group_bulk_read.getData(id, start_address, data_length));
+      else if (data_length == 4)
+        data_map[id] = static_cast<uint32_t>(group_bulk_read.getData(id, start_address, data_length));
+    }
+  }
+
+  group_bulk_read.clearParam();
+
+  return data_map;
+}
+
+void Dynamixel::bulkWrite(BulkWriteDataVect const & bulk_write_data)
+{
+  dynamixel::GroupBulkWrite group_bulk_write(_port_handler.get(), _packet_handler.get());
+
+  /* Unfortunately we need to copy and hold the data until the bulk write
+   * has been completed. This works best by adding it temporarily to some
+   * std::vector.
+   */
+  std::vector<std::shared_ptr<uint8_t>>  tmp_val_uint8_t;
+  std::vector<std::shared_ptr<uint16_t>> tmp_val_uint16_t;
+  std::vector<std::shared_ptr<uint32_t>> tmp_val_uint32_t;
+
+  for(auto [id, start_address, value] : bulk_write_data)
+  {
+    if (std::holds_alternative<uint8_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint8_t>(std::get<uint8_t>(value));
+      tmp_val_uint8_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint8_t), tmp_val.get());
+    }
+    else if (std::holds_alternative<uint16_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint16_t>(std::get<uint16_t>(value));
+      tmp_val_uint16_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint16_t), reinterpret_cast<uint8_t *>(tmp_val.get()));
+    }
+    else if (std::holds_alternative<uint32_t>(value))
+    {
+      auto tmp_val = std::make_shared<uint32_t>(std::get<uint32_t>(value));
+      tmp_val_uint32_t.push_back(tmp_val);
+      group_bulk_write.addParam(id, start_address, sizeof(uint32_t), reinterpret_cast<uint8_t *>(tmp_val.get()));
+    }
+  }
+
+  if (int const res = group_bulk_write.txPacket();
+    res != COMM_SUCCESS) {
+    throw CommunicationError(_packet_handler.get(), res);
+  }
+  group_bulk_write.clearParam();
+}
+
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
@@ -88,20 +171,6 @@ void Dynamixel::syncWrite(uint16_t const start_address, uint16_t const data_leng
     throw CommunicationError(_packet_handler.get(), res);
   }
   group_sync_write.clearParam();
-}
-
-void Dynamixel::bulkWrite(uint16_t const start_address, uint16_t const data_length, BulkWriteDataVect const & data)
-{
-  dynamixel::GroupBulkWrite group_bulk_write(_port_handler.get(), _packet_handler.get());
-
-  for(auto [id, data_ptr] : data)
-    group_bulk_write.addParam(id, start_address, data_length, data_ptr);
-
-  if (int const res = group_bulk_write.txPacket();
-    res != COMM_SUCCESS) {
-    throw CommunicationError(_packet_handler.get(), res);
-  }
-  group_bulk_write.clearParam();
 }
 
 Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
@@ -139,45 +208,6 @@ Dynamixel::SyncReadDataVect Dynamixel::syncRead(uint16_t const start_address, ui
   }
 
   group_sync_read.clearParam();
-
-  return data_vect;
-}
-
-Dynamixel::BulkReadDataVect Dynamixel::bulkRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect)
-{
-  BulkReadDataVect data_vect;
-
-  dynamixel::GroupBulkRead group_bulk_read(_port_handler.get(), _packet_handler.get());
-
-  for(auto id : id_vect)
-    group_bulk_read.addParam(id, start_address, data_length);
-
-  if (int const res = group_bulk_read.txRxPacket();
-    res != COMM_SUCCESS) {
-    throw CommunicationError(_packet_handler.get(), res);
-  }
-
-  for(auto id : id_vect)
-  {
-    uint8_t dxl_error = 0;
-    if (group_bulk_read.getError(id, &dxl_error))
-    {
-      if (dxl_error & 0x80)
-        throw HardwareAlert(id);
-      else if(dxl_error & 0x7F)
-        throw StatusError(_packet_handler.get(), dxl_error & 0x7F);
-    }
-  }
-
-  for(auto id : id_vect)
-  {
-    if (group_bulk_read.isAvailable(id, start_address, data_length))
-      data_vect.push_back(std::make_tuple(id, group_bulk_read.getData(id, start_address, data_length)));
-    else
-      data_vect.push_back(std::make_tuple(id, std::nullopt));
-  }
-
-  group_bulk_read.clearParam();
 
   return data_vect;
 }

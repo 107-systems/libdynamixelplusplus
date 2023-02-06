@@ -58,10 +58,14 @@ int main(int argc, char **argv) try
   /* Read the current angle from all those servos
    * and print it to std::cout.
    */
-  std::map<Dynamixel::Id, uint32_t> position_map;
+  Dynamixel::BulkReadDataMap position_map;
   try
   {
-    position_map = dynamixel_ctrl.bulkRead<uint32_t>(MX28_ControlTable_PresentPosition, id_vect);
+    Dynamixel::BulkReadRequestVect bulk_read_req;
+    for (auto id : id_vect)
+      bulk_read_req.push_back(std::make_tuple(id, MX28_ControlTable_PresentPosition, sizeof(uint32_t)));
+
+    position_map = dynamixel_ctrl.bulkRead(bulk_read_req);
   }
   catch (dynamixelplusplus::HardwareAlert const & e)
   {
@@ -74,7 +78,7 @@ int main(int argc, char **argv) try
 
   for (auto [id, position_raw] : position_map)
   {
-    float const position_deg = static_cast<float>(position_raw) * 360.0f / 4096;
+    float const position_deg = static_cast<float>(std::get<uint32_t>(position_raw)) * 360.0f / 4096;
     std::cout << "Dynamixel MX28 servo #"
               << static_cast<int>(id)
               << ": "

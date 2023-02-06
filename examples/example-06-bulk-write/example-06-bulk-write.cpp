@@ -107,20 +107,22 @@ catch (dynamixelplusplus::StatusError const & e)
 
 void turnLedOn(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  std::map<Dynamixel::Id, uint8_t> led_on_data_map;
+  Dynamixel::BulkWriteDataVect led_on_data_vect;
+  uint8_t const LED_ON_VAL = 1;
 
   for (auto id : id_vect)
-    led_on_data_map[id] = 1;
+    led_on_data_vect.push_back(std::make_tuple(id, MX28_ControlTable_LED, LED_ON_VAL));
 
-  dynamixel_ctrl.bulkWrite(MX28_ControlTable_LED, led_on_data_map);
+  dynamixel_ctrl.bulkWrite(led_on_data_vect);
 }
 
 void turnLedOff(Dynamixel & dynamixel_ctrl, Dynamixel::IdVect const & id_vect)
 {
-  std::map<Dynamixel::Id, uint8_t> led_off_data_map;
+  Dynamixel::BulkWriteDataVect led_off_data_vect;
+  uint8_t const LED_OFF_VAL = 0;
 
   for (auto id : id_vect)
-    led_off_data_map[id] = 0;
+    led_off_data_vect.push_back(std::make_tuple(id, MX28_ControlTable_LED, LED_OFF_VAL));
 
-  dynamixel_ctrl.bulkWrite(MX28_ControlTable_LED, led_off_data_map);
+  dynamixel_ctrl.bulkWrite(led_off_data_vect);
 }

@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <variant>
 
 #include <dynamixel_sdk.h>
 
@@ -75,17 +76,23 @@ public:
   typedef uint8_t         Id;
   typedef std::vector<Id> IdVect;
 
-
   IdVect broadcastPing();
 
   void reboot(Id const id);
 
+
+  typedef std::map<Id, std::variant<uint8_t, uint16_t, uint32_t>> BulkReadDataMap;
+  typedef std::vector<std::tuple<Id, uint16_t, size_t>> BulkReadRequestVect;
+  BulkReadDataMap bulkRead(BulkReadRequestVect const & bulk_read_req);
+
+  typedef std::vector<std::tuple<Id, uint16_t, std::variant<uint8_t, uint16_t, uint32_t>>> BulkWriteDataVect;
+  void bulkWrite(BulkWriteDataVect const & bulk_write_data);
+
+
   template<typename T> T               read    (uint16_t const start_address, Id const id);
-  template<typename T> std::map<Id, T> bulkRead(uint16_t const start_address, IdVect const & id_vect);
   template<typename T> std::map<Id, T> syncRead(uint16_t const start_address, IdVect const & id_vect);
 
   template<typename T> void write    (uint16_t const start_address, Id const id, T const val);
-  template<typename T> void bulkWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
   template<typename T> void syncWrite(uint16_t const start_address, std::map<Id, T> const & val_map);
 
 
@@ -96,18 +103,13 @@ private:
   typedef std::tuple<Id, uint8_t *>  SyncWriteData;
   typedef std::vector<SyncWriteData> SyncWriteDataVect;
   void syncWrite(uint16_t const start_address, uint16_t const data_length, SyncWriteDataVect const & data);
-  typedef SyncWriteData     BulkWriteData;
-  typedef SyncWriteDataVect BulkWriteDataVect;
-  void bulkWrite(uint16_t const start_address, uint16_t const data_length, BulkWriteDataVect const & data);
 
   typedef std::vector<std::tuple<
                                  Id,
                                  std::optional<uint32_t>
                                 >
                      > SyncReadDataVect;
-  typedef SyncReadDataVect BulkReadDataVect;
   SyncReadDataVect syncRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
-  BulkReadDataVect bulkRead(uint16_t const start_address, uint16_t const data_length, IdVect const & id_vect);
 };
 
 /**************************************************************************************
