@@ -31,7 +31,7 @@
  **************************************************************************************/
 
 #define _107_LIBDYNAMIXELPLUSPLUS_BASE_MAJOR 0001
-#define _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR 0001
+#define _107_LIBDYNAMIXELPLUSPLUS_BASE_MINOR 0002
 #define _107_LIBDYNAMIXELPLUSPLUS_BASE_PATCH 0000
 
 #define _107_LIBDYNAMIXELPLUSPLUS_BASE_CONCAT_VERSION_(a,b,c) a ## b ## c
