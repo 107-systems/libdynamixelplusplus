@@ -71,24 +71,6 @@ template<typename T> T Dynamixel::read(uint16_t const start_address, Id const id
   return val;
 }
 
-template<typename T> std::map<Dynamixel::Id, T> Dynamixel::bulkRead(uint16_t const start_address, IdVect const & id_vect)
-{
-  static_assert(std::is_same<T, uint8_t>::value  ||
-                std::is_same<T, uint16_t>::value ||
-                std::is_same<T, uint32_t>::value, "Only uint8_t, uint16_t and uint32_t are allowed parameters.");
-
-  auto bulk_read_data_vect = bulkRead(start_address, sizeof(T), id_vect);
-
-  std::map<Id, T> val_map;
-  for (auto [id, opt_data] : bulk_read_data_vect)
-  {
-    if (opt_data.has_value())
-      val_map[id] = static_cast<T>(opt_data.value());
-  }
-
-  return val_map;
-}
-
 template<typename T> std::map<Dynamixel::Id, T> Dynamixel::syncRead(uint16_t const start_address, IdVect const & id_vect)
 {
   static_assert(std::is_same<T, uint8_t>::value  ||
