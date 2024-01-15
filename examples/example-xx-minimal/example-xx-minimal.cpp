@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <sstream>
 #include <iostream>
 #include <dynamixel++/dynamixel++.h>
 
@@ -10,11 +11,44 @@ static uint16_t const MX28_ControlTable_PresentPosition = 132;
 
 int main(int argc, char **argv) try
 {
-  Dynamixel dynamixel_ctrl("/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0",
-                           Dynamixel::Protocol::V2_0,
-                           115200);
+  size_t      const DEFAULT_BAUD_RATE   = 115200;
+  std::string const DEFAULT_DEVICE_NAME = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT4NNZ55-if00-port0";
 
-  Dynamixel::IdVect const id_vect{1,2,3,4};
+  size_t baud_rate{DEFAULT_BAUD_RATE};
+  std::string device_name{DEFAULT_DEVICE_NAME};
+
+  if (argc > 1) {
+    device_name = std::string(argv[1]);
+  }
+  if (argc > 2) {
+    std::stringstream baud_rate_ss;
+    baud_rate_ss << argv[2];
+    baud_rate_ss >> baud_rate;
+  }
+
+  std::cout << "configured for \"" << device_name << "\" with a baud rate of \"" << baud_rate << "\"." << std::endl;
+
+  Dynamixel dynamixel_ctrl(device_name,
+                           Dynamixel::Protocol::V2_0,
+                           baud_rate);
+
+  /* Send a broadcast ping to determine which
+   * servos are available (more convenient for
+   * the user compared to manually editing this
+   * file).
+   */
+
+  auto const id_vect = dynamixel_ctrl.broadcastPing();
+
+  if (id_vect.empty()) {
+    std::cerr << "No dynamixel servos detected." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  std::cout << "detected Dynamixel servos: ";
+  for (auto id : id_vect)
+    std::cout << static_cast<int>(id) << " ";
+  std::cout << std::endl;
 
   /* Enable torque. */
   std::map<Dynamixel::Id, uint8_t> torque_on_data_map;
@@ -23,7 +57,7 @@ int main(int argc, char **argv) try
 
   /* Set goal position. */
   std::map<Dynamixel::Id, uint32_t> goal_position_data_map;
-  for (auto id : id_vect) goal_position_data_map[id] = (id - 1) * 1024;
+  for (auto id : id_vect) goal_position_data_map[id] = ((id - 1) * 1024) % 4096;
   dynamixel_ctrl.syncWrite(MX28_ControlTable_Torque_Enable, goal_position_data_map);
 
   /* Read current position. */
