@@ -5,6 +5,8 @@ project("dynamixel++")
 ##########################################################################
 option(BUILD_EXAMPLES "Build all examples provided with this library" OFF)
 ##########################################################################
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+##########################################################################
 add_subdirectory(lib/dynamixel/current)
 ##########################################################################
 add_library(${PROJECT_NAME} STATIC src/Dynamixel.cpp)
