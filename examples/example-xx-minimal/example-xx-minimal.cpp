@@ -58,7 +58,7 @@ int main(int argc, char **argv) try
   /* Set goal position. */
   std::map<Dynamixel::Id, uint32_t> goal_position_data_map;
   for (auto id : id_vect) goal_position_data_map[id] = (rand() % 4096);
-  dynamixel_ctrl.syncWrite(MX28_ControlTable_Torque_Enable, goal_position_data_map);
+  dynamixel_ctrl.syncWrite(MX28_ControlTable_GoalPosition, goal_position_data_map);
 
   /* Read current position. */
   std::map<Dynamixel::Id, uint32_t> const position_map = dynamixel_ctrl.syncRead<uint32_t>(MX28_ControlTable_PresentPosition, id_vect);
