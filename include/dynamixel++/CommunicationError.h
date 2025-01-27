@@ -30,9 +30,14 @@ namespace dynamixelplusplus
 class CommunicationError : public std::runtime_error
 {
 public:
-  CommunicationError(dynamixel::PacketHandler * packet_handler, int const dxl_err_code)
+  CommunicationError(
+    dynamixel::PacketHandler * packet_handler,
+    int const dxl_err_code)
   : std::runtime_error{packet_handler->getTxRxResult(dxl_err_code)}
+  , error_code(dxl_err_code)
   { }
+
+  int const error_code;
 };
 
 /**************************************************************************************
